@@ -8,7 +8,7 @@ import { Employee, Duty, User, AppState } from './types';
  * 2. Copy the "Live URL" from your Render Dashboard.
  * 3. Replace the placeholder below with your ACTUAL Render URL.
  */
-const YOUR_ACTUAL_RENDER_URL = 'https://dutysync-pro-backend.onrender.com'; 
+const YOUR_ACTUAL_RENDER_URL = 'https://employee-duty-management-system.onrender.com'; 
 
 const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
   ? '/api' 
