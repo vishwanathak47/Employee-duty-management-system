@@ -1,3 +1,4 @@
+
 {
   "name": "dutysync-pro",
   "version": "1.0.0",
@@ -8,8 +9,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
-    "build": "echo 'Frontend build started' && exit 0"
+    "build": "npm install"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
