@@ -13,25 +13,36 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const MONGO_URI = process.env.MONGO_URI;
+// Connection retry logic for more stable production starts
+const connectWithRetry = () => {
+  const MONGO_URI = process.env.MONGO_URI;
+  if (!MONGO_URI) {
+    console.error('CRITICAL: MONGO_URI is missing in Environment Variables.');
+    return;
+  }
 
-if (!MONGO_URI) {
-  console.error('FATAL ERROR: MONGO_URI is not defined in environment variables.');
-  console.error('Please add it in your Render settings.');
-} else {
+  console.log('Attempting MongoDB connection...');
   mongoose.connect(MONGO_URI)
-    .then(() => console.log('MongoDB Connected successfully to cloud Atlas'))
+    .then(() => console.log('Successfully connected to MongoDB Atlas.'))
     .catch(err => {
-      console.error('MongoDB Connection Failed:');
-      console.error(err.message);
+      console.error('MongoDB connection error. Retrying in 5 seconds...', err.message);
+      setTimeout(connectWithRetry, 5000);
     });
-}
+};
 
-app.get('/health', (req, res) => res.send('System Online'));
+connectWithRetry();
+
+// Health check for Render monitoring
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'active', timestamp: new Date().toISOString() });
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/duties', dutyRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`DutySync Backend is live on port ${PORT}`);
+  console.log(`Production Mode: ${process.env.NODE_ENV === 'production'}`);
+});
