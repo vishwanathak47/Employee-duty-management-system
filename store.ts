@@ -2,7 +2,17 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { Employee, Duty, User, AppState } from './types';
 
-const API_BASE = '/api';
+/**
+ * DEPLOYMENT INSTRUCTIONS:
+ * 1. Deploy your backend to Render.
+ * 2. Copy the "Live URL" from your Render Dashboard.
+ * 3. Replace the placeholder below with your ACTUAL Render URL.
+ */
+const YOUR_ACTUAL_RENDER_URL = 'https://dutysync-pro-backend.onrender.com'; 
+
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? '/api' 
+  : `${YOUR_ACTUAL_RENDER_URL}/api`;
 
 interface StoreContextType {
   state: AppState;
@@ -20,9 +30,6 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
-/**
- * StoreProvider handles global application state and provides actions to update it.
- */
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, setState] = useState<AppState>(() => {
     const savedUser = localStorage.getItem('user');
@@ -34,10 +41,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   });
 
   const getToken = () => localStorage.getItem('token');
-  const getAuthHeaders = useCallback(() => ({
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${getToken()}`
-  }), []);
+  
+  const getAuthHeaders = useCallback(() => {
+    const token = getToken();
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    };
+  }, []);
 
   const fetchEmployees = useCallback(async () => {
     try {
@@ -47,7 +58,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         setState(prev => ({ ...prev, employees }));
       }
     } catch (err) {
-      console.error('Failed to fetch employees', err);
+      console.warn('Backend currently unreachable at:', API_BASE);
     }
   }, [getAuthHeaders]);
 
@@ -162,9 +173,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       const completedDuty = await res.json();
       setState(prev => ({
         ...prev,
-        duties: prev.duties.map(d => d.id === id || (d as any)._id === id ? completedDuty : d)
+        duties: prev.duties.map(d => (d.id === id || (d as any)._id === id) ? completedDuty : d)
       }));
-      fetchEmployees(); // Update stats in employee list
+      fetchEmployees();
     }
   };
 
@@ -174,16 +185,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }
   }, [state.user, fetchEmployees]);
 
-  return (
-    <StoreContext.Provider value={{ 
+  return React.createElement(StoreContext.Provider, {
+    value: { 
       state, login, signup, logout, 
       fetchEmployees, addEmployee, updateEmployee, 
       deleteEmployee, scheduleDuty, completeDuty, 
       fetchDutiesByDate 
-    }}>
-      {children}
-    </StoreContext.Provider>
-  );
+    }
+  }, children);
 };
 
 export const useStore = () => {
