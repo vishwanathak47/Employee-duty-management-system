@@ -13,19 +13,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// IST Utility for Global Use
-const getISTDate = () => {
-  const date = new Date();
-  const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
-  return new Date(utc + (3600000 * 5.5));
-};
+const MONGO_URI = process.env.MONGO_URI;
 
-// Database Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/dutysync')
-  .then(() => console.log('MongoDB Connected (IST Mode Active)'))
-  .catch(err => console.error('Connection Error:', err));
+if (!MONGO_URI) {
+  console.error('FATAL ERROR: MONGO_URI is not defined in environment variables.');
+  console.error('Please add it in your Render settings.');
+} else {
+  mongoose.connect(MONGO_URI)
+    .then(() => console.log('MongoDB Connected successfully to cloud Atlas'))
+    .catch(err => {
+      console.error('MongoDB Connection Failed:');
+      console.error(err.message);
+    });
+}
 
-// Routes
+app.get('/health', (req, res) => res.send('System Online'));
+
 app.use('/api/auth', authRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/duties', dutyRoutes);
