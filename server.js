@@ -43,18 +43,9 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'active', timestamp: new Date().toISOString() });
 });
 
-// 4. Serve Static Files (The Frontend)
-/**
- * FIX: Browsers require ES modules to be served with 'application/javascript'.
- * We use setHeaders to override the default 'application/octet-stream' for .ts/.tsx files.
- */
-app.use(express.static(__dirname, {
-  setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.tsx') || filePath.endsWith('.ts')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    }
-  }
-}));
+// 4. Serve Static Files
+// This now serves bundle.js, index.html, and other assets
+app.use(express.static(__dirname));
 
 // 5. Catch-all Route for React Router
 app.get('*', (req, res) => {
