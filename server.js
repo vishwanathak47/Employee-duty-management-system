@@ -2,6 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
 const employeeRoutes = require('./routes/employee');
@@ -13,11 +14,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Connection retry logic for more stable production starts
+// 1. Database Connection Logic
 const connectWithRetry = () => {
   const MONGO_URI = process.env.MONGO_URI;
   if (!MONGO_URI) {
-    console.error('CRITICAL: MONGO_URI is missing in Environment Variables.');
+    console.error('CRITICAL ERROR: MONGO_URI is missing in Environment Variables.');
     return;
   }
 
@@ -32,17 +33,29 @@ const connectWithRetry = () => {
 
 connectWithRetry();
 
-// Health check for Render monitoring
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'active', timestamp: new Date().toISOString() });
-});
-
+// 2. API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/duties', dutyRoutes);
 
+// 3. Health check for Render
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'active', timestamp: new Date().toISOString() });
+});
+
+// 4. Serve Static Files (The Frontend)
+// This serves all files in your root directory (index.html, App.tsx, etc.)
+app.use(express.static(__dirname));
+
+// 5. Catch-all Route for React Router
+// This ensures that refreshing the page on /employees or /scheduler works.
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, 'index.html'));
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`DutySync Backend is live on port ${PORT}`);
-  console.log(`Production Mode: ${process.env.NODE_ENV === 'production'}`);
+  console.log(`DutySync Pro running on port ${PORT}`);
 });
