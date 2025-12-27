@@ -44,11 +44,19 @@ app.get('/api/health', (req, res) => {
 });
 
 // 4. Serve Static Files (The Frontend)
-// This serves all files in your root directory (index.html, App.tsx, etc.)
-app.use(express.static(__dirname));
+/**
+ * FIX: Browsers require ES modules to be served with 'application/javascript'.
+ * We use setHeaders to override the default 'application/octet-stream' for .ts/.tsx files.
+ */
+app.use(express.static(__dirname, {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.tsx') || filePath.endsWith('.ts')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+  }
+}));
 
 // 5. Catch-all Route for React Router
-// This ensures that refreshing the page on /employees or /scheduler works.
 app.get('*', (req, res) => {
   if (!req.path.startsWith('/api')) {
     res.sendFile(path.join(__dirname, 'index.html'));
