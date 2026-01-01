@@ -140,8 +140,8 @@ const EmployeeManagement: React.FC = () => {
       {/* Modern Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-            <div className="px-8 py-6 flex justify-between items-center border-b border-slate-100">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+            <div className="px-8 py-6 flex justify-between items-center border-b border-slate-100 flex-shrink-0">
               <div>
                 <h2 className="text-2xl font-black text-slate-900 tracking-tight">{editingEmp ? 'Update Profile' : 'Staff Onboarding'}</h2>
                 <p className="text-sm text-slate-500 font-medium">Configure employee identity and access</p>
@@ -149,7 +149,7 @@ const EmployeeManagement: React.FC = () => {
               <button onClick={() => setIsModalOpen(false)} className="p-2 bg-slate-100 text-slate-500 hover:bg-slate-200 rounded-full transition-colors"><X size={24} /></button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-8 space-y-6">
+            <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto">
               {/* Photo Upload Section */}
               <div className="flex flex-col items-center gap-4">
                 <div className="relative group">
@@ -228,7 +228,7 @@ const EmployeeManagement: React.FC = () => {
                 ></textarea>
               </div>
 
-              <div className="pt-4 flex gap-4">
+              <div className="pt-4 flex gap-4 flex-shrink-0">
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
