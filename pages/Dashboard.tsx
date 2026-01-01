@@ -35,7 +35,8 @@ const Dashboard: React.FC = () => {
         emp.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         emp.employeeId.toLowerCase().includes(searchTerm.toLowerCase())
       )
-      .sort((a, b) => a.name.localeCompare(b.name));
+      // Sort by total duties count (Ascending) then by name
+      .sort((a, b) => (a.totalDutiesCount - b.totalDutiesCount) || a.name.localeCompare(b.name));
   }, [state.employees, searchTerm]);
 
   const stats = useMemo(() => {
