@@ -12,7 +12,9 @@ dotenv.config();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+// Increase limit for Base64 images
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // 1. Database Connection Logic
 const connectWithRetry = () => {
@@ -44,7 +46,6 @@ app.get('/api/health', (req, res) => {
 });
 
 // 4. Serve Static Files
-// This now serves bundle.js, index.html, and other assets
 app.use(express.static(__dirname));
 
 // 5. Catch-all Route for React Router
