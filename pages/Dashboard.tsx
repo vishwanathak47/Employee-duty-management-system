@@ -35,23 +35,16 @@ const Dashboard: React.FC = () => {
         emp.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         emp.employeeId.toLowerCase().includes(searchTerm.toLowerCase())
       )
-      // Sort by total duties count (Ascending) then by name
       .sort((a, b) => (a.totalDutiesCount - b.totalDutiesCount) || a.name.localeCompare(b.name));
   }, [state.employees, searchTerm]);
-
-  const stats = useMemo(() => {
-    const working = state.duties.filter(d => d.date === selectedDate && d.isScheduled).length;
-    const leaves = state.duties.filter(d => d.date === selectedDate && !d.isScheduled).length;
-    return { working, leaves };
-  }, [state.duties, selectedDate]);
 
   return (
     <div className="space-y-6 pb-24 sm:pb-8">
       {/* Header & Controls */}
       <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6">
         <div className="space-y-1">
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Deployment Board</h1>
-          <p className="text-slate-500 font-medium">Monitoring site availability and shift coverage</p>
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Deployment Board</h1>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">Monitoring site availability and shift coverage</p>
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -59,7 +52,7 @@ const Dashboard: React.FC = () => {
             <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
             <input 
               type="date"
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm font-semibold text-slate-700"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm font-semibold text-slate-700 dark:text-slate-200 transition-colors"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
             />
@@ -69,7 +62,7 @@ const Dashboard: React.FC = () => {
             <input 
               type="text"
               placeholder="Search staff database..."
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm dark:text-white transition-colors"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -77,12 +70,10 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Staff" value={state.employees.length} color="indigo" />
-        <StatCard label="Working Today" value={stats.working} color="green" />
-        <StatCard label="Leaves/Off" value={stats.leaves} color="red" />
-        <StatCard label="Coverage %" value={state.employees.length ? Math.round((stats.working / (state.employees.length * 2)) * 100) : 0} suffix="%" color="violet" />
+      {/* Simplified Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-2 gap-4">
+        <StatCard label="Active Personnel" value={state.employees.length} color="indigo" />
+        <StatCard label="Month Goal" value="100%" suffix="" color="violet" />
       </div>
 
       {/* Employee Grid */}
@@ -93,7 +84,7 @@ const Dashboard: React.FC = () => {
             <div 
               key={empId} 
               onClick={() => setSelectedEmpHistory(emp)}
-              className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 hover:shadow-xl hover:border-indigo-100 transition-all cursor-pointer group flex flex-col h-full"
+              className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 hover:shadow-xl hover:border-indigo-100 dark:hover:border-indigo-500/50 transition-all cursor-pointer group flex flex-col h-full"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -101,15 +92,15 @@ const Dashboard: React.FC = () => {
                     <img src={emp.photoUrl} alt="" className="w-12 h-12 rounded-full object-cover" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{emp.name}</h3>
+                    <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">{emp.name}</h3>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{emp.employeeId}</p>
                   </div>
                 </div>
-                <ChevronRight size={18} className="text-slate-300 group-hover:text-indigo-400 transition-colors" />
+                <ChevronRight size={18} className="text-slate-300 dark:text-slate-600 group-hover:text-indigo-400 transition-colors" />
               </div>
 
               <div className="flex-1 space-y-3">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50 pb-1">Shift Availability</p>
+                <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest border-b border-slate-50 dark:border-slate-700 pb-1">Shift Availability</p>
                 
                 <div className="grid grid-cols-1 gap-2">
                   <ShiftBadge shift={ShiftTime.MORNING} status={getShiftStatus(empId, ShiftTime.MORNING)} />
@@ -118,9 +109,9 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center text-[10px] font-bold">
+              <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center text-[10px] font-bold">
                 <span className="text-slate-400">TOTAL DUTIES</span>
-                <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">{emp.totalDutiesCount}</span>
+                <span className="text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-full">{emp.totalDutiesCount}</span>
               </div>
             </div>
           );
@@ -130,7 +121,7 @@ const Dashboard: React.FC = () => {
       {/* History Modal */}
       {selectedEmpHistory && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
             <div className="p-6 bg-indigo-600 text-white flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <img src={selectedEmpHistory.photoUrl} className="w-16 h-16 rounded-2xl border-2 border-white/20 object-cover shadow-lg" alt="" />
@@ -144,10 +135,10 @@ const Dashboard: React.FC = () => {
               </button>
             </div>
             
-            <div className="p-6 overflow-y-auto flex-1 bg-slate-50">
+            <div className="p-6 overflow-y-auto flex-1 bg-slate-50 dark:bg-slate-900/50">
               <div className="flex items-center gap-2 mb-6">
                 <History size={20} className="text-indigo-600" />
-                <h3 className="font-bold text-slate-800">Engagement History</h3>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200">Engagement History</h3>
               </div>
               
               <div className="space-y-3">
@@ -155,8 +146,8 @@ const Dashboard: React.FC = () => {
                   <p className="text-center py-12 text-slate-400 font-medium">No performance records found.</p>
                 ) : (
                   selectedEmpHistory.monthlyDuties.map((m: any, idx: number) => (
-                    <div key={idx} className="bg-white p-4 rounded-2xl border border-slate-200 flex justify-between items-center shadow-sm">
-                      <span className="font-bold text-slate-700">{m.monthYear}</span>
+                    <div key={idx} className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 flex justify-between items-center shadow-sm">
+                      <span className="font-bold text-slate-700 dark:text-slate-200">{m.monthYear}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-slate-400">SHIFTS COMPLETED</span>
                         <span className="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-black">{m.count}</span>
@@ -167,22 +158,15 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-6 border-t border-slate-100 bg-white">
+            <div className="p-6 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800">
               <button 
                 onClick={() => setSelectedEmpHistory(null)}
-                className="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-black transition-all shadow-lg active:scale-[0.98]"
+                className="w-full bg-slate-900 dark:bg-slate-700 text-white font-bold py-4 rounded-2xl hover:bg-black dark:hover:bg-slate-600 transition-all shadow-lg active:scale-[0.98]"
               >
                 Close Profile
               </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {filteredEmployees.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-24 text-slate-400">
-          <Search size={64} className="mb-4 opacity-10" />
-          <p className="text-xl font-bold tracking-tight">No staff members found matching search</p>
         </div>
       )}
     </div>
@@ -191,10 +175,8 @@ const Dashboard: React.FC = () => {
 
 const StatCard = ({ label, value, color, suffix = '' }: any) => {
   const colors: any = {
-    indigo: 'from-indigo-500 to-indigo-700 shadow-indigo-100',
-    green: 'from-emerald-500 to-emerald-700 shadow-emerald-100',
-    red: 'from-rose-500 to-rose-700 shadow-rose-100',
-    violet: 'from-violet-500 to-violet-700 shadow-violet-100'
+    indigo: 'from-indigo-500 to-indigo-700 shadow-indigo-100 dark:shadow-none',
+    violet: 'from-violet-500 to-violet-700 shadow-violet-100 dark:shadow-none'
   };
   return (
     <div className={`bg-gradient-to-br ${colors[color]} p-4 rounded-2xl text-white shadow-xl`}>
@@ -206,9 +188,9 @@ const StatCard = ({ label, value, color, suffix = '' }: any) => {
 
 const ShiftBadge = ({ shift, status }: any) => {
   const getStyle = () => {
-    if (status.type === 'scheduled') return 'bg-emerald-50 text-emerald-700 border-emerald-100';
-    if (status.type === 'leave') return 'bg-rose-50 text-rose-700 border-rose-100';
-    return 'bg-slate-50 text-slate-400 border-slate-100';
+    if (status.type === 'scheduled') return 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/50';
+    if (status.type === 'leave') return 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 border-rose-100 dark:border-rose-900/50';
+    return 'bg-slate-50 dark:bg-slate-700/50 text-slate-400 dark:text-slate-500 border-slate-100 dark:border-slate-700';
   };
 
   const getIcon = () => {
