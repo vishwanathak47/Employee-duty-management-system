@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 
 const dutySchema = new mongoose.Schema({
+  supervisor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   employee: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee', required: true },
   date: { type: String, required: true }, // Format: YYYY-MM-DD (IST)
   shiftTime: { 
