@@ -1,6 +1,8 @@
 
 {
-  "name": "DutySync Pro: Employee Duty Management",
-  "description": "A robust, IST-synchronized employee duty and shift management system for supervisors to track availability, schedule shifts, and generate monthly reports.",
-  "requestFramePermissions": ["camera"]
+  "name": "DutySync Pro: Employee Duty Management System",
+  "description": "Professional employee duty and shift management portal. IST-synchronized scheduling, automated monthly reporting, and personnel tracking for supervisors.",
+  "requestFramePermissions": [
+    "camera"
+  ]
 }
