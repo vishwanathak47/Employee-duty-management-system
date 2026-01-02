@@ -46,7 +46,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6 pb-24 sm:pb-8">
       {/* Header & Controls */}
-      <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6">
+      <header className="flex flex-col xl:flex-row xl:items-end justify-between gap-6">
         <div className="space-y-1">
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Deployment Board</h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium">Monitoring site availability and shift coverage</p>
@@ -54,54 +54,66 @@ const Dashboard: React.FC = () => {
         
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <div className="relative w-full sm:w-64">
-            <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
+            <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} aria-hidden="true" />
             <input 
               type="date"
+              aria-label="Select duty date"
               className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm font-semibold text-slate-700 dark:text-slate-200 transition-colors"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
             />
           </div>
           <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} aria-hidden="true" />
             <input 
               type="text"
               placeholder="Search staff database..."
+              aria-label="Search staff members"
               className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm dark:text-white transition-colors"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 gap-4">
+      <section className="grid grid-cols-2 gap-4" aria-label="Daily statistics summary">
         <StatCard label="Active Personnel" value={state.employees.length} color="indigo" />
         <StatCard label="Leaves/Off Today" value={stats.leaves} color="red" />
-      </div>
+      </section>
 
       {/* Employee Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" aria-label="Staff deployment cards">
         {filteredEmployees.map(emp => {
           const empId = emp.id || (emp as any)._id;
           return (
-            <div 
+            <article 
               key={empId} 
               onClick={() => setSelectedEmpHistory(emp)}
               className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 hover:shadow-xl hover:border-indigo-100 dark:hover:border-indigo-500/50 transition-all cursor-pointer group flex flex-col h-full"
+              role="button"
+              tabIndex={0}
+              aria-label={`View ${emp.name}'s duty history`}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className={`p-1 rounded-full border-2 ${emp.gender === Gender.FEMALE ? 'border-sky-400' : 'border-orange-400'}`}>
-                    <img src={emp.photoUrl} alt="" className="w-12 h-12 rounded-full object-cover" />
+                    <img 
+                      src={emp.photoUrl} 
+                      alt={`${emp.name} profile photo`} 
+                      width="48" 
+                      height="48" 
+                      loading="lazy"
+                      className="w-12 h-12 rounded-full object-cover" 
+                    />
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">{emp.name}</h3>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{emp.employeeId}</p>
                   </div>
                 </div>
-                <ChevronRight size={18} className="text-slate-300 dark:text-slate-600 group-hover:text-indigo-400 transition-colors" />
+                <ChevronRight size={18} className="text-slate-300 dark:text-slate-600 group-hover:text-indigo-400 transition-colors" aria-hidden="true" />
               </div>
 
               <div className="flex-1 space-y-3">
@@ -118,31 +130,35 @@ const Dashboard: React.FC = () => {
                 <span className="text-slate-400">TOTAL DUTIES</span>
                 <span className="text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-full">{emp.totalDutiesCount}</span>
               </div>
-            </div>
+            </article>
           );
         })}
-      </div>
+      </section>
 
       {/* History Modal */}
       {selectedEmpHistory && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
             <div className="p-6 bg-indigo-600 text-white flex justify-between items-center">
               <div className="flex items-center gap-4">
-                <img src={selectedEmpHistory.photoUrl} className="w-16 h-16 rounded-2xl border-2 border-white/20 object-cover shadow-lg" alt="" />
+                <img src={selectedEmpHistory.photoUrl} width="64" height="64" className="w-16 h-16 rounded-2xl border-2 border-white/20 object-cover shadow-lg" alt="" />
                 <div>
                   <h2 className="text-2xl font-black tracking-tight">{selectedEmpHistory.name}</h2>
                   <p className="text-indigo-100 font-bold text-sm tracking-widest uppercase">{selectedEmpHistory.employeeId}</p>
                 </div>
               </div>
-              <button onClick={() => setSelectedEmpHistory(null)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                <X size={24} />
+              <button 
+                onClick={() => setSelectedEmpHistory(null)} 
+                aria-label="Close profile modal"
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <X size={24} aria-hidden="true" />
               </button>
             </div>
             
             <div className="p-6 overflow-y-auto flex-1 bg-slate-50 dark:bg-slate-900/50">
               <div className="flex items-center gap-2 mb-6">
-                <History size={20} className="text-indigo-600" />
+                <History size={20} className="text-indigo-600" aria-hidden="true" />
                 <h3 className="font-bold text-slate-800 dark:text-slate-200">Engagement History</h3>
               </div>
               
@@ -200,9 +216,9 @@ const ShiftBadge = ({ shift, status }: any) => {
   };
 
   const getIcon = () => {
-    if (status.type === 'scheduled') return <CheckCircle2 size={14} />;
-    if (status.type === 'leave') return <XCircle size={14} />;
-    return <Clock size={14} />;
+    if (status.type === 'scheduled') return <CheckCircle2 size={14} aria-hidden="true" />;
+    if (status.type === 'leave') return <XCircle size={14} aria-hidden="true" />;
+    return <Clock size={14} aria-hidden="true" />;
   };
 
   const shortName = shift.includes('6am') ? 'Morning' : shift.includes('2pm') ? 'Afternoon' : 'General';
