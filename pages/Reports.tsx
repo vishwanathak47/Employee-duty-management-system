@@ -1,11 +1,13 @@
 
 import React, { useState, useMemo } from 'react';
 import { useStore } from '../store';
-import { Download, FileSpreadsheet, TrendingUp, Calendar, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Download, FileSpreadsheet, TrendingUp, Calendar, AlertCircle, LogOut } from 'lucide-react';
 import { format } from 'date-fns';
 
 const Reports: React.FC = () => {
-  const { state } = useStore();
+  const { state, logout } = useStore();
+  const navigate = useNavigate();
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
 
   const reportData = useMemo(() => {
@@ -38,7 +40,11 @@ const Reports: React.FC = () => {
     document.body.removeChild(link);
   };
 
-  // Monthly count already only includes completed duties from the database logic
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   const totalMonthlyCompletedDuties = reportData.reduce((acc, curr) => acc + curr.monthCount, 0);
 
   return (
@@ -132,6 +138,17 @@ const Reports: React.FC = () => {
           </table>
         </div>
         <div className="h-px bg-slate-200 dark:bg-slate-700 w-full"></div>
+      </div>
+
+      {/* Secondary Logout Option (Primary for Mobile) */}
+      <div className="pt-8">
+        <button 
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-3 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/50 py-5 rounded-2xl font-black text-sm uppercase tracking-[0.1em] hover:bg-rose-600 hover:text-white transition-all active:scale-[0.98] shadow-sm"
+        >
+          <LogOut size={20} />
+          <span>Sign Out of Supervisor Session</span>
+        </button>
       </div>
     </div>
   );
