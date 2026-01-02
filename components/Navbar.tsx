@@ -2,7 +2,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
-import { LayoutDashboard, Users, CalendarDays, BarChart3, LogOut, Zap } from 'lucide-react';
+import { LayoutDashboard, Users, CalendarDays, BarChart3, LogOut, Zap, Sun, Moon } from 'lucide-react';
 
 const Logo = () => (
   <div className="flex items-center gap-3">
@@ -13,7 +13,7 @@ const Logo = () => (
       </div>
     </div>
     <div className="flex flex-col">
-      <span className="text-xl font-black tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent leading-none">
+      <span className="text-xl font-black tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent leading-none transition-colors">
         DutySync
       </span>
       <span className="text-[10px] font-bold text-indigo-600 tracking-[0.2em] uppercase">
@@ -23,7 +23,12 @@ const Logo = () => (
   </div>
 );
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  toggleTheme: () => void;
+  theme: string;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ toggleTheme, theme }) => {
   const { state, logout } = useStore();
   const navigate = useNavigate();
 
@@ -37,7 +42,7 @@ const Navbar: React.FC = () => {
   return (
     <>
       {/* Desktop Top Navbar */}
-      <nav className="hidden sm:block bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+      <nav className="hidden sm:block bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20">
             <div className="flex items-center gap-12">
@@ -49,14 +54,20 @@ const Navbar: React.FC = () => {
                 <NavItem to="/reports" icon={<BarChart3 size={18} />} label="Analytics" />
               </div>
             </div>
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={toggleTheme}
+                className="p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+              >
+                {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+              </button>
               <div className="text-right hidden md:block">
-                <p className="text-sm font-bold text-slate-900">{state.user.name}</p>
+                <p className="text-sm font-bold text-slate-900 dark:text-white">{state.user.name}</p>
                 <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">Site Supervisor</p>
               </div>
               <button 
                 onClick={handleLogout}
-                className="group p-2.5 bg-slate-50 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300"
+                className="group p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-300"
                 title="Sign Out"
               >
                 <LogOut size={20} className="group-hover:translate-x-0.5 transition-transform" />
@@ -67,19 +78,19 @@ const Navbar: React.FC = () => {
       </nav>
 
       {/* Mobile Bottom Navbar */}
-      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-t border-slate-200 pb-safe-area-inset-bottom">
-        <div className="flex justify-around items-center px-4 py-3">
-          <MobileNavItem to="/" icon={<LayoutDashboard size={24} />} label="Home" />
-          <MobileNavItem to="/employees" icon={<Users size={24} />} label="Staff" />
-          <MobileNavItem to="/scheduler" icon={<CalendarDays size={24} />} label="Schedules" />
-          <MobileNavItem to="/reports" icon={<BarChart3 size={24} />} label="Stats" />
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 pb-safe-area-inset-bottom transition-colors">
+        <div className="flex justify-around items-center px-2 py-3">
+          <MobileNavItem to="/" icon={<LayoutDashboard size={22} />} label="Home" />
+          <MobileNavItem to="/employees" icon={<Users size={22} />} label="Staff" />
           <button 
-            onClick={handleLogout}
+            onClick={toggleTheme}
             className="flex flex-col items-center gap-1 text-slate-400 p-2"
           >
-            <LogOut size={24} />
-            <span className="text-[10px] font-bold">Exit</span>
+            {theme === 'light' ? <Moon size={22} /> : <Sun size={22} />}
+            <span className="text-[10px] font-bold uppercase">Theme</span>
           </button>
+          <MobileNavItem to="/scheduler" icon={<CalendarDays size={22} />} label="Shift" />
+          <MobileNavItem to="/reports" icon={<BarChart3 size={22} />} label="Stats" />
         </div>
       </nav>
     </>
@@ -92,8 +103,8 @@ const NavItem = ({ to, icon, label }: { to: string, icon: React.ReactNode, label
     className={({ isActive }) => `
       flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200
       ${isActive 
-        ? 'text-indigo-600 bg-indigo-50 shadow-sm shadow-indigo-100/50' 
-        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+        ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 shadow-sm shadow-indigo-100/50' 
+        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'
       }
     `}
   >
@@ -106,15 +117,15 @@ const MobileNavItem = ({ to, icon, label }: { to: string, icon: React.ReactNode,
   <NavLink
     to={to}
     className={({ isActive }) => `
-      flex flex-col items-center gap-1.5 p-2 rounded-2xl transition-all
+      flex flex-col items-center gap-1 p-1.5 rounded-2xl transition-all min-w-[60px]
       ${isActive 
         ? 'text-indigo-600 scale-110' 
-        : 'text-slate-400'
+        : 'text-slate-400 dark:text-slate-500'
       }
     `}
   >
     {icon}
-    <span className="text-[10px] font-bold tracking-tight uppercase">{label}</span>
+    <span className="text-[9px] font-bold tracking-tight uppercase">{label}</span>
   </NavLink>
 );
 
