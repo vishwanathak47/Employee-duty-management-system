@@ -16,7 +16,18 @@ const getISTMonthYear = () => {
 router.post('/schedule', auth, async (req, res) => {
   try {
     const { employeeId, date, shiftTime, isScheduled } = req.body;
-    const duty = new Duty({ employee: employeeId, date, shiftTime, isScheduled });
+    
+    // Verify the employee belongs to this supervisor
+    const empCheck = await Employee.findOne({ _id: employeeId, supervisor: req.user.id });
+    if (!empCheck) return res.status(403).json({ message: 'Unauthorized: Employee does not belong to you' });
+
+    const duty = new Duty({ 
+      employee: employeeId, 
+      date, 
+      shiftTime, 
+      isScheduled,
+      supervisor: req.user.id 
+    });
     await duty.save();
     res.json(duty);
   } catch (err) {
@@ -26,17 +37,17 @@ router.post('/schedule', auth, async (req, res) => {
 
 router.put('/complete/:id', auth, async (req, res) => {
   try {
-    const duty = await Duty.findById(req.params.id);
-    if (!duty || duty.isCompleted) return res.status(400).json({ message: 'Invalid Duty' });
+    const duty = await Duty.findOne({ _id: req.params.id, supervisor: req.user.id });
+    if (!duty || duty.isCompleted) return res.status(400).json({ message: 'Invalid Duty or Unauthorized' });
 
     duty.isCompleted = true;
     await duty.save();
 
     const monthYear = getISTMonthYear();
     
-    // Atomic update for Employee duty counts
+    // Atomic update for Employee duty counts - ensured it's the supervisor's employee
     await Employee.updateOne(
-      { _id: duty.employee, "monthlyDuties.monthYear": monthYear },
+      { _id: duty.employee, supervisor: req.user.id, "monthlyDuties.monthYear": monthYear },
       { 
         $inc: { totalDutiesCount: 1, "monthlyDuties.$.count": 1 } 
       }
@@ -44,7 +55,7 @@ router.put('/complete/:id', auth, async (req, res) => {
       // If the month entry didn't exist, push a new one
       if (result.matchedCount === 0) {
         await Employee.updateOne(
-          { _id: duty.employee },
+          { _id: duty.employee, supervisor: req.user.id },
           { 
             $inc: { totalDutiesCount: 1 },
             $push: { monthlyDuties: { monthYear, count: 1 } }
@@ -61,17 +72,17 @@ router.put('/complete/:id', auth, async (req, res) => {
 
 router.get('/status/:date', auth, async (req, res) => {
   try {
-    const duties = await Duty.find({ date: req.params.date });
+    const duties = await Duty.find({ date: req.params.date, supervisor: req.user.id });
     res.json(duties);
   } catch (err) {
     res.status(500).send('Server Error');
   }
 });
 
-// For CSV Report Generation (Raw Data)
+// For CSV Report Generation (Raw Data) - now isolated per supervisor
 router.get('/report/:monthYear', auth, async (req, res) => {
   try {
-    const employees = await Employee.find();
+    const employees = await Employee.find({ supervisor: req.user.id });
     const data = employees.map(emp => {
       const monthly = emp.monthlyDuties.find(m => m.monthYear === req.params.monthYear);
       return {
