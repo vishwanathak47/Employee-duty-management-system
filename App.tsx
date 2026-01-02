@@ -13,7 +13,7 @@ import { Zap } from 'lucide-react';
 
 const Preloader = () => {
   return (
-    <div className="fixed inset-0 z-[1000] bg-indigo-600 flex flex-col items-center justify-center">
+    <div role="status" aria-label="Loading application" className="fixed inset-0 z-[1000] bg-indigo-600 flex flex-col items-center justify-center">
       <div className="relative">
         <div className="w-24 h-24 bg-white/10 rounded-3xl animate-pulse absolute inset-0 blur-xl"></div>
         <div className="relative w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-indigo-600 shadow-2xl animate-bounce">
@@ -49,7 +49,8 @@ const App: React.FC = () => {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 2000);
+    // Reduced preloader time slightly to ensure Lighthouse doesn't time out FCP
+    const timer = setTimeout(() => setLoading(false), 1500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -70,7 +71,7 @@ const App: React.FC = () => {
       <Router>
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300 flex flex-col">
           <Navbar toggleTheme={toggleTheme} theme={theme} />
-          <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
@@ -108,7 +109,7 @@ const NetworkMonitor = () => {
   if (isOnline) return null;
 
   return (
-    <div className="fixed bottom-20 sm:bottom-4 right-4 z-[100] bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 animate-bounce">
+    <div role="alert" className="fixed bottom-20 sm:bottom-4 right-4 z-[100] bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 animate-bounce">
       <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">!</div>
       <div>
         <p className="font-bold">Offline Connection</p>
