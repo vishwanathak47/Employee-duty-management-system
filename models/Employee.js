@@ -7,6 +7,7 @@ const monthlyDutySchema = new mongoose.Schema({
 });
 
 const employeeSchema = new mongoose.Schema({
+  supervisor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   employeeId: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   gender: { type: String, enum: ['Male', 'Female'], required: true },
