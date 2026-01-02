@@ -15,6 +15,11 @@ const Dashboard: React.FC = () => {
     fetchDutiesByDate(selectedDate);
   }, [fetchDutiesByDate, selectedDate]);
 
+  const stats = useMemo(() => {
+    const leaves = state.duties.filter(d => d.date === selectedDate && !d.isScheduled).length;
+    return { leaves };
+  }, [state.duties, selectedDate]);
+
   const getShiftStatus = (employeeId: string, shift: ShiftTime) => {
     const duty = state.duties.find(d => 
       (d.employeeId === employeeId || (d as any).employee === employeeId) && 
@@ -70,10 +75,10 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Simplified Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-2 gap-4">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 gap-4">
         <StatCard label="Active Personnel" value={state.employees.length} color="indigo" />
-        <StatCard label="Month Goal" value="100%" suffix="" color="violet" />
+        <StatCard label="Leaves/Off Today" value={stats.leaves} color="red" />
       </div>
 
       {/* Employee Grid */}
@@ -176,6 +181,7 @@ const Dashboard: React.FC = () => {
 const StatCard = ({ label, value, color, suffix = '' }: any) => {
   const colors: any = {
     indigo: 'from-indigo-500 to-indigo-700 shadow-indigo-100 dark:shadow-none',
+    red: 'from-rose-500 to-rose-700 shadow-rose-100 dark:shadow-none',
     violet: 'from-violet-500 to-violet-700 shadow-violet-100 dark:shadow-none'
   };
   return (
